@@ -1,11 +1,6 @@
-module github.com/l00p8/l00p8
+module github.com/l00p8/shield
 
-go 1.16
+go 1.17
 
-require (
-	github.com/go-chi/chi v1.5.4
-	github.com/l00p8/shield v0.1.1
-	github.com/l00p8/xclient v0.1.0
-	github.com/l00p8/xserver v0.1.1
-	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
-)
+require github.com/golang-jwt/jwt/v4 v4.1.0
+
