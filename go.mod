@@ -1,4 +1,4 @@
-module github.com/l00p8/utils
+module github.com/l00p8/l00p8
 
 go 1.16
 
