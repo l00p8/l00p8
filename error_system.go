@@ -1,4 +1,4 @@
-package utils
+package l00p8
 
 import (
 	"net/http"
@@ -15,6 +15,16 @@ type ErrorSystem interface {
 	Forbidden(code int, message ...string) Error
 
 	Unauthorized(code int, message ...string) Error
+
+	PaymentRequired(code int, messages ...string) Error
+
+	MethodNotAllowed(code int, messages ...string) Error
+
+	NotAcceptable(code int, messages ...string) Error
+
+	TooManyRequests(code int, messages ...string) Error
+
+	RequestTimeout(code int, messages ...string) Error
 }
 
 type httpErrorSystem struct {
@@ -65,4 +75,24 @@ func (sys httpErrorSystem) Forbidden(code int, messages ...string) Error {
 
 func (sys httpErrorSystem) Unauthorized(code int, messages ...string) Error {
 	return sys.NewError(code, http.StatusUnauthorized, messages...)
+}
+
+func (sys httpErrorSystem) PaymentRequired(code int, messages ...string) Error {
+	return sys.NewError(code, http.StatusPaymentRequired, messages...)
+}
+
+func (sys httpErrorSystem) MethodNotAllowed(code int, messages ...string) Error {
+	return sys.NewError(code, http.StatusMethodNotAllowed, messages...)
+}
+
+func (sys httpErrorSystem) NotAcceptable(code int, messages ...string) Error {
+	return sys.NewError(code, http.StatusNotAcceptable, messages...)
+}
+
+func (sys httpErrorSystem) TooManyRequests(code int, messages ...string) Error {
+	return sys.NewError(code, http.StatusTooManyRequests, messages...)
+}
+
+func (sys httpErrorSystem) RequestTimeout(code int, messages ...string) Error {
+	return sys.NewError(code, http.StatusRequestTimeout, messages...)
 }

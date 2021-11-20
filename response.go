@@ -1,4 +1,4 @@
-package utils
+package l00p8
 
 import (
 	"net/http"
@@ -10,9 +10,9 @@ type Response interface {
 
 	Response() interface{}
 
-	Headers() map[string]string
+	Headers() map[string][]string
 
-	SetHeader(key, val string) Response
+	SetHeader(key string, val []string) Response
 }
 
 type response struct {
@@ -21,7 +21,7 @@ type response struct {
 	statusCode int
 
 	mu      sync.Mutex
-	headers map[string]string
+	headers map[string][]string
 }
 
 func (r *response) StatusCode() int {
@@ -32,11 +32,11 @@ func (r *response) Response() interface{} {
 	return r.data
 }
 
-func (r *response) Headers() map[string]string {
+func (r *response) Headers() map[string][]string {
 	return r.headers
 }
 
-func (r *response) SetHeader(key, val string) Response {
+func (r *response) SetHeader(key string, val []string) Response {
 	r.mu.Lock()
 	r.headers[key] = val
 	r.mu.Unlock()
@@ -44,9 +44,41 @@ func (r *response) SetHeader(key, val string) Response {
 }
 
 func OK(data interface{}) Response {
-	return &response{data: data, statusCode: http.StatusOK, headers: map[string]string{}}
+	return &response{data: data, statusCode: http.StatusOK, headers: nil}
 }
 
 func Created(data interface{}) Response {
-	return &response{data: data, statusCode: http.StatusCreated, headers: map[string]string{}}
+	return &response{data: data, statusCode: http.StatusCreated, headers: nil}
+}
+
+func Accepted(data interface{}) Response {
+	return &response{data: data, statusCode: http.StatusAccepted, headers: nil}
+}
+
+func NonAuthoritativeInformation(data interface{}) Response {
+	return &response{data: data, statusCode: 203, headers: nil}
+}
+
+func NoContent(data interface{}) Response {
+	return &response{data: data, statusCode: http.StatusNoContent, headers: nil}
+}
+
+func ResetContent(data interface{}) Response {
+	return &response{data: data, statusCode: http.StatusResetContent, headers: nil}
+}
+
+func PartialContent(data interface{}) Response {
+	return &response{data: data, statusCode: http.StatusPartialContent, headers: nil}
+}
+
+func MultiStatus(data interface{}) Response {
+	return &response{data: data, statusCode: http.StatusMultiStatus, headers: nil}
+}
+
+func AlreadyReported(data interface{}) Response {
+	return &response{data: data, statusCode: http.StatusAlreadyReported, headers: nil}
+}
+
+func IMUsed(data interface{}) Response {
+	return &response{data: data, statusCode: http.StatusIMUsed, headers: nil}
 }

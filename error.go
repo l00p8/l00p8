@@ -1,4 +1,4 @@
-package utils
+package l00p8
 
 type Error interface {
 	Response

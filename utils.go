@@ -1,4 +1,4 @@
-package utils
+package l00p8
 
 import (
 	"gopkg.in/mgo.v2/bson"
