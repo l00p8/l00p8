@@ -75,5 +75,5 @@ func (clt *httpClient) Request(ctx context.Context, method string, url string, b
 		statusCode: resp.StatusCode,
 		headers:    resp.Header,
 	}
-	return vresp, nil
+	return ResponseWrapCtx(vresp, ctx), nil
 }

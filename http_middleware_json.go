@@ -28,14 +28,21 @@ func JSON(handler Handler) http.HandlerFunc {
 			w.WriteHeader(resp.StatusCode())
 			return
 		}
-		data, err := json.Marshal(respBody)
-		if err != nil {
-			_, err = w.Write([]byte("{}"))
+		var data []byte
+		var ok bool
+		var err error
+		// assume that we already got json string in response
+		if data, ok = respBody.([]byte); !ok {
+			// we got some native data type in response so we need to serialize it
+			data, err = json.Marshal(respBody)
 			if err != nil {
+				_, err = w.Write([]byte("{}"))
+				if err != nil {
+					return
+				}
+				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			w.WriteHeader(http.StatusInternalServerError)
-			return
 		}
 		for k, val := range resp.Headers() {
 			for _, v := range val {
