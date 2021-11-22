@@ -7,9 +7,20 @@ import (
 
 func JSON(handler Handler) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		resp := handler(r)
-		if resp == nil {
+		ch := make(chan Response)
+		go func() {
+			ch <- handler(r)
+		}()
+		var resp Response
+		select {
+		case <-r.Context().Done():
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusRequestTimeout)
 			return
+		case resp = <-ch:
+			if resp == nil {
+				return
+			}
 		}
 		respBody := resp.Response()
 		if respBody == nil {

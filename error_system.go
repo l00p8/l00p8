@@ -1,8 +1,11 @@
 package l00p8
 
 import (
+	"context"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/middleware"
 )
 
 type ErrorSystem interface {
@@ -25,6 +28,10 @@ type ErrorSystem interface {
 	TooManyRequests(code int, messages ...string) Error
 
 	RequestTimeout(code int, messages ...string) Error
+
+	BadGateway(code int, messages ...string) Error
+
+	Wrap(code int, status int, err error) Error
 }
 
 type httpErrorSystem struct {
@@ -46,6 +53,7 @@ func (sys httpErrorSystem) NewError(code int, status int, messages ...string) Er
 		message = messages[0]
 	}
 
+	err.headers = map[string][]string{}
 	err.Code = code
 	err.Status = status
 	err.System = sys.system
@@ -95,4 +103,24 @@ func (sys httpErrorSystem) TooManyRequests(code int, messages ...string) Error {
 
 func (sys httpErrorSystem) RequestTimeout(code int, messages ...string) Error {
 	return sys.NewError(code, http.StatusRequestTimeout, messages...)
+}
+
+func (sys httpErrorSystem) BadGateway(code int, messages ...string) Error {
+	return sys.NewError(code, http.StatusBadGateway, messages...)
+}
+
+func (sys httpErrorSystem) Wrap(code int, status int, err error) Error {
+	if herr, ok := err.(*HttpError); ok {
+		return herr
+	}
+	return sys.NewError(code, status, err.Error())
+}
+
+func ErrWrapCtx(err Error, ctx context.Context) Error {
+	xReqId, ok := ctx.Value(middleware.RequestIDKey).(string)
+	if !ok {
+		return err
+	}
+	err.SetHeader(middleware.RequestIDHeader, []string{xReqId})
+	return err
 }
