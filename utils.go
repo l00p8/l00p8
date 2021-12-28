@@ -1,10 +1,15 @@
 package l00p8
 
 import (
-	"gopkg.in/mgo.v2/bson"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/go-chi/chi"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -34,6 +39,30 @@ func (params ListParams) SQLOrderAndPaging() string {
 		q += " OFFSET " + strconv.Itoa(params.ItemsPerPage*(params.Page-1))
 	}
 	return q
+}
+
+func URLParam(r *http.Request, param string) string {
+	return chi.URLParam(r, param)
+}
+
+func ParseBodyFromRequest(r *http.Request, obj interface{}) error {
+	d, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	switch r.Header.Get("Content-Type") {
+	case "application/json":
+		err = json.Unmarshal(d, obj)
+		if err != nil {
+			return err
+		}
+	default:
+		err = json.Unmarshal(d, obj)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ParseFromRequest parses query object from http.Request's URL
