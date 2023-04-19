@@ -3,7 +3,7 @@ package shield
 import (
 	"errors"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
@@ -37,23 +37,19 @@ func (v *jwtValidator) Valid(jwtToken string) (*JWTClaims, error) {
 }
 
 func processValidationErr(err error) error {
-	if verr, ok := err.(*jwt.ValidationError); ok {
-		// process token key mismatch and invalid signature as token is invalid error
-		// maybe refactor this later
-		if verr.Errors&(jwt.ValidationErrorMalformed|jwt.ValidationErrorUnverifiable) > 0 {
-			return ErrTokenIsInvalid
-		}
-		if verr.Errors&jwt.ValidationErrorSignatureInvalid > 0 {
-			return ErrSignatureInvalid
-		}
-		if verr.Errors&jwt.ValidationErrorExpired == jwt.ValidationErrorExpired {
-			return ErrTokenExpired
-		}
-		if verr.Errors&jwt.ValidationErrorIssuedAt == jwt.ValidationErrorIssuedAt {
-			return ErrTokenIssuedAt
-		}
+	switch err {
+	case jwt.ErrTokenExpired:
+		return ErrTokenExpired
+	case jwt.ErrTokenNotValidYet:
 		return ErrTokenIsInvalid
-	} else if err != nil {
+	case jwt.ErrTokenMalformed:
+		return ErrTokenIsInvalid
+	case jwt.ErrTokenSignatureInvalid:
+		return ErrSignatureInvalid
+	case jwt.ErrTokenInvalidIssuer:
+		return ErrTokenIssuedAt
+	}
+	if err != nil {
 		return err
 	}
 	return nil
